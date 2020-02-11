@@ -16,49 +16,57 @@ router.get('/', async (req: Request, res: Response) => {
     res.send(items);
 });
 
-//@TODO
 //Add an endpoint to GET a specific resource by Primary Key
+router.get('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const item = await FeedItem.findByPk(id);
+  res.send(item);
+})
 
 // update a specific resource
 router.patch('/:id', 
     requireAuth, 
     async (req: Request, res: Response) => {
-        //@TODO try it yourself
-        res.send(500).send("not implemented")
+        const id = req.params.id;
+        const { caption } = req.body;
+
+        const [ affectedRows, item ] = await FeedItem.update({ caption }, { where: { id }, returning: true })
+        // const [ affectedRows, item ] = await FeedItem.update({ caption }, { where: { id }, returning: true, plain: true })
+        res.status(200).send(item)
 });
 
 
 // Get a signed url to put a new item in the bucket
-router.get('/signed-url/:fileName', 
+router.get('/signed-url/:filename', 
     requireAuth, 
     async (req: Request, res: Response) => {
-    let { fileName } = req.params;
-    const url = AWS.getPutSignedUrl(fileName);
+    let { filename } = req.params;
+    const url = AWS.getPutSignedUrl(filename);
     res.status(201).send({url: url});
 });
 
 // Post meta data and the filename after a file is uploaded 
 // NOTE the file name is they key name in the s3 bucket.
-// body : {caption: string, fileName: string};
+// body : {caption: string, filename: string};
 router.post('/', 
     requireAuth, 
     async (req: Request, res: Response) => {
     const caption = req.body.caption;
-    const fileName = req.body.url;
+    const filename = req.body.url;
 
     // check Caption is valid
     if (!caption) {
         return res.status(400).send({ message: 'Caption is required or malformed' });
     }
 
-    // check Filename is valid
-    if (!fileName) {
+    // check filename is valid
+    if (!filename) {
         return res.status(400).send({ message: 'File url is required' });
     }
 
     const item = await new FeedItem({
             caption: caption,
-            url: fileName
+            url: filename
     });
 
     const saved_item = await item.save();
