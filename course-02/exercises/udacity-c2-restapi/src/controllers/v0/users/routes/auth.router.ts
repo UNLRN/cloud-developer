@@ -7,6 +7,7 @@ import * as jwt from 'jsonwebtoken';
 import { NextFunction } from 'connect';
 
 import * as EmailValidator from 'email-validator';
+import { config } from '../../../../config/config';
 
 const router: Router = Router();
 
@@ -20,30 +21,28 @@ async function comparePasswords(plainTextPassword: string, hash: string): Promis
 }
 
 function generateJWT(user: User): string {
-    //@TODO Use jwt to create a new JWT Payload containing
-    return;
+    return jwt.sign(user, config.jwt_secret);
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!req.headers || !req.headers.authorization){
+      return res.status(401).send({ message: 'No authorization headers.' });
+  }
+  
+
+  const token_bearer = req.headers.authorization.split(' ');
+  if(token_bearer.length != 2){
+      return res.status(401).send({ message: 'Malformed token.' });
+  }
+  
+  const token = token_bearer[1];
+
+  return jwt.verify(token, config.jwt_secret, (err, decoded) => {
+    if (err) {
+      return res.status(500).send({ auth: false, message: 'Failed to authenticate.' });
+    }
     return next();
-    // if (!req.headers || !req.headers.authorization){
-    //     return res.status(401).send({ message: 'No authorization headers.' });
-    // }
-    
-
-    // const token_bearer = req.headers.authorization.split(' ');
-    // if(token_bearer.length != 2){
-    //     return res.status(401).send({ message: 'Malformed token.' });
-    // }
-    
-    // const token = token_bearer[1];
-
-    // return jwt.verify(token, "hello", (err, decoded) => {
-    //   if (err) {
-    //     return res.status(500).send({ auth: false, message: 'Failed to authenticate.' });
-    //   }
-    //   return next();
-    // });
+  });
 }
 
 router.get('/verification', 
