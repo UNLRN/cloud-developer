@@ -54,15 +54,15 @@
 	],
 	"variable": [
 		{
-			"id": "42cbb91b-bf4d-48e4-b15f-59aca46321fb",
+			"id": "4d70a615-894a-44a0-bf11-9085d6380139",
 			"key": "HOST",
 			"value": "localhost:8082",
 			"type": "string"
 		},
 		{
-			"id": "0054bf29-071e-471a-bd66-ab1e3af98bbd",
+			"id": "c000556e-5491-4bb4-8fd7-70c1e3a45012",
 			"key": "EB_URL",
-			"value": "image-filter-jiles-dev.us-east-1.elasticbeanstalk.com/",
+			"value": "image-filter-jiles-dev.us-east-1.elasticbeanstalk.com",
 			"type": "string"
 		}
 	],
